@@ -19,8 +19,25 @@ services:
       - ./about.html:/usr/share/nginx/html/about.html
       - ./contact.html:/usr/share/nginx/html/contact.html
       - ./demo.html:/usr/share/nginx/html/demo.html
+      - ./slow.html:/usr/share/nginx/html/slow.html
       - ./css:/usr/share/nginx/html/css
       - ./js:/usr/share/nginx/html/js
+    networks:
+      - smartlearn-network
+    environment:
+      - TZ=Asia/Shanghai
+    depends_on:
+      - slow-api
+
+  # 慢行产品 API：无障碍元数据、内容版本、用户偏好
+  slow-api:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    container_name: slow-api
+    restart: unless-stopped
+    volumes:
+      - slow-data:/data
     networks:
       - smartlearn-network
     environment:
@@ -29,3 +46,6 @@ services:
 networks:
   smartlearn-network:
     driver: bridge
+
+volumes:
+  slow-data:

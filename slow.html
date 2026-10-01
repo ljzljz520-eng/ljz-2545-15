@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-fontsize="normal" data-contrast="normal">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>慢行地图 - 无障碍路线探索</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/slow.css">
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要内容</a>
+<nav class="navbar" aria-label="主导航">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">智慧学习平台</a>
+    <ul class="nav-menu">
+      <li><a href="index.html">首页</a></li>
+      <li><a href="slow.html" aria-current="page">慢行地图</a></li>
+      <li><a href="courses.html">课程中心</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main id="main">
+  <h1>慢行地图</h1>
+
+  <!-- 动态内容播报区：筛选结果、选中、懒加载失败、图片说明更新等 -->
+  <div id="a11y-live" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- 表现层控制：大字模式只改表现，不动焦点与选中 -->
+  <section aria-label="显示偏好" class="pref-bar">
+    <span id="fontsize-label">字号：</span>
+    <div role="group" aria-labelledby="fontsize-label">
+      <button type="button" data-fontsize-choice="normal">标准</button>
+      <button type="button" data-fontsize-choice="large">大字</button>
+      <button type="button" data-fontsize-choice="xlarge">特大</button>
+    </div>
+    <button type="button" id="locate-btn">📍 定位我的位置</button>
+    <span id="geo-status" role="status"></span>
+    <div id="manual-origin" hidden>
+      <label for="origin-input">手动选择起点：</label>
+      <input id="origin-input" type="text" placeholder="输入地点名称">
+    </div>
+  </section>
+
+  <!-- 筛选区 -->
+  <section aria-label="路线筛选" class="filter-bar">
+    <div role="group" aria-label="按类型筛选">
+      <button type="button" data-filter-category="all" aria-pressed="true">全部</button>
+      <button type="button" data-filter-category="waterfront" aria-pressed="false">滨水步道</button>
+      <button type="button" data-filter-category="heritage" aria-pressed="false">古城人文</button>
+      <button type="button" data-filter-category="cycle" aria-pressed="false">环湖骑行</button>
+    </div>
+    <label for="route-search">搜索路线</label>
+    <input id="route-search" type="search" placeholder="路线名 / 城市">
+    <label><input id="accessible-only" type="checkbox"> 仅看全程轮椅可通行</label>
+  </section>
+
+  <!-- 结果状态区：筛选后焦点消失时的可预测落点 -->
+  <p id="filter-status" tabindex="-1" role="status">筛选结果加载中…</p>
+
+  <div class="slow-layout">
+    <!-- 地图视图 -->
+    <section aria-label="地图视图" class="map-panel">
+      <h2>地图</h2>
+      <div class="map-canvas">
+        <svg id="slow-map" viewBox="0 0 480 320" role="img" aria-label="慢行路线示意图"></svg>
+      </div>
+      <button type="button" id="open-contribute">✍️ 投稿无障碍信息</button>
+      <button type="button" id="open-compare">⚖️ 对比所选路线</button>
+    </section>
+
+    <!-- 结构化路线列表（与地图共享查询状态与选中项） -->
+    <section aria-label="路线列表" class="list-panel">
+      <h2>路线列表</h2>
+      <div id="route-results" class="route-results">
+        <ul id="route-list"></ul>
+      </div>
+    </section>
+
+    <!-- 点位面板：选中路线后懒加载（虚拟列表），图片说明随版本更新 -->
+    <section id="points-panel" aria-label="路线点位" class="points-panel" hidden>
+      <h2 id="points-title">路线点位</h2>
+      <div id="points-list" class="points-list" aria-label="点位列表（方向键浏览）"></div>
+    </section>
+  </div>
+
+  <!-- 投稿弹层（支持嵌套） -->
+  <div id="contribute-dialog" class="dialog" hidden aria-label="投稿">
+    <form id="contribute-form">
+      <h2>投稿无障碍信息</h2>
+      <div id="contribute-errors" class="error-box" tabindex="-1" hidden role="alert"></div>
+      <label>标题 <input name="title" required data-autofocus></label>
+      <label>说明 <textarea name="description" rows="3"></textarea></label>
+      <label>图片替代说明（必填） <input name="mediaAlt" required></label>
+      <button type="submit">提交投稿</button>
+      <button type="button" onclick="this.closest('.dialog').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}))">取消</button>
+    </form>
+  </div>
+
+  <!-- 对比弹层 -->
+  <div id="compare-dialog" class="dialog" hidden aria-label="路线对比">
+    <h2>路线对比</h2>
+    <table>
+      <thead><tr><th scope="col">路线</th><th scope="col">城市</th><th scope="col">长度</th><th scope="col">无障碍点位</th></tr></thead>
+      <tbody id="compare-body"></tbody>
+    </table>
+    <button type="button" id="compare-back" data-autofocus>返回原列表</button>
+  </div>
+</main>
+
+<script src="js/slow/store.js"></script>
+<script src="js/slow/live.js"></script>
+<script src="js/slow/focus.js"></script>
+<script src="js/slow/dialog.js"></script>
+<script src="js/slow/virtlist.js"></script>
+<script src="js/slow/mapview.js"></script>
+<script src="js/slow/listview.js"></script>
+<script src="js/slow/prefs.js"></script>
+<script src="js/slow/app.js"></script>
+<script>
+  window.slowApp = SlowApp.createApp({ document: document, userId: 'demo-user' });
+  window.slowApp.init();
+</script>
+</body>
+</html>

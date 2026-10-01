@@ -16,6 +16,7 @@ COPY profile.html .
 COPY about.html .
 COPY contact.html .
 COPY demo.html .
+COPY slow.html .
 COPY css/ ./css/
 COPY js/ ./js/
 

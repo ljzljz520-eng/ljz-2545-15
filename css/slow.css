@@ -1,0 +1,58 @@
+/* 慢行地图页样式：表现层偏好只通过根元素 data 属性切换 */
+.skip-link { position:absolute; left:-9999px; }
+.skip-link:focus { left:0; top:0; background:#000; color:#fff; padding:.5rem 1rem; z-index:100; }
+.visually-hidden { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+/* 大字模式：纯表现层，只放大字号，不改布局结构 */
+html[data-fontsize="large"] { font-size: 125%; }
+html[data-fontsize="xlarge"] { font-size: 150%; }
+html[data-contrast="high"] body { background:#000; color:#fff; }
+
+.pref-bar, .filter-bar { display:flex; gap:1rem; align-items:center; flex-wrap:wrap; margin:1rem 0; }
+#filter-status { padding:.5rem; border-left:4px solid #667eea; background:#f7fafc; }
+#filter-status:focus { outline:3px solid #667eea; }
+
+.slow-layout { display:grid; grid-template-columns: 1fr 1fr; gap:2rem; }
+@media (max-width: 768px) { .slow-layout { grid-template-columns: 1fr; } }
+
+.map-canvas { position:relative; border:2px solid #e2e8f0; border-radius:12px; min-height:320px; }
+#slow-map { width:100%; height:auto; display:block; }
+.marker-dot { fill:#667eea; }
+.marker-dot.selected { fill:#e53e3e; stroke:#fff; stroke-width:3; }
+.marker-label { font-size:12px; text-anchor:middle; fill:#2d3748; }
+.map-hit { position:absolute; width:36px; height:36px; border-radius:50%; opacity:.01; cursor:pointer; }
+.map-hit:focus { opacity:1; outline:3px solid #667eea; }
+
+.route-results { max-height:420px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:8px; }
+#route-list { list-style:none; margin:0; padding:0; }
+.route-item { display:flex; justify-content:space-between; align-items:center; padding:.75rem 1rem; border-bottom:1px solid #edf2f7; }
+.route-item.selected { background:#ebf4ff; border-left:4px solid #667eea; }
+.route-select { background:none; border:none; text-align:left; cursor:pointer; flex:1; }
+.route-select:focus { outline:3px solid #667eea; }
+.route-name { display:block; font-weight:600; }
+.route-meta { color:#718096; font-size:.875em; }
+
+.dialog { position:fixed; inset:10% 20%; background:#fff; border-radius:12px; padding:2rem;
+  box-shadow:0 20px 60px rgba(0,0,0,.3); z-index:50; overflow:auto; }
+.dialog[hidden] { display:none; }
+.dialog label { display:block; margin:.75rem 0; }
+.dialog input, .dialog textarea { width:100%; padding:.5rem; border:2px solid #e2e8f0; border-radius:6px; }
+.error-box { background:#fff5f5; border:2px solid #e53e3e; border-radius:8px; padding:.75rem; margin-bottom:1rem; }
+.error-box:focus { outline:3px solid #e53e3e; }
+
+.vl-error { padding:1rem; background:#fff5f5; border:1px solid #e53e3e; border-radius:8px; }
+.vl-retry { margin-left:1rem; }
+
+:focus-visible { outline:3px solid #667eea; outline-offset:2px; }
+
+/* 点位虚拟列表 */
+.points-panel { grid-column: 1 / -1; }
+.points-list { max-height: 400px; overflow-y: auto; border:1px solid #e2e8f0; border-radius:8px; position:relative; }
+.points-list:focus { outline:3px solid #667eea; }
+.vl-spacer { width:1px; }
+.vl-window { position:absolute; top:0; left:0; right:0; }
+.point-item { padding:.75rem 1rem; border-bottom:1px solid #edf2f7; display:flex; flex-direction:column; gap:.25rem; }
+.point-item[aria-selected="true"] { background:#ebf4ff; border-left:4px solid #667eea; }
+.point-desc { color:#4a5568; }
+.point-a11y { color:#2f855a; font-size:.875em; }
+.point-item img { max-width:120px; border-radius:6px; }

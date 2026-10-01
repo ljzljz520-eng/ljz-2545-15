@@ -1,0 +1,18 @@
+{
+  "name": "slow-travel-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "慢行产品后端：无障碍元数据、内容版本与用户偏好 API",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "seed": "node src/seed.js",
+    "test": "node --test test/"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.10.0"
+  },
+  "devDependencies": {
+    "jsdom": "^24.1.3"
+  }
+}
