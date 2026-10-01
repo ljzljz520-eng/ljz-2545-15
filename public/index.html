@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>慢行 SlowMoves — 无障碍慢行路线</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+  <a class="skip-link skip-link--2" href="#route-list-viewport">跳到路线列表</a>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <h1 class="brand">慢行 <span lang="en">SlowMoves</span></h1>
+      <p class="tagline">每一步都有文字说明 · 地图与列表同一选中项 · 纯键盘可用</p>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- 偏好工具栏：大字模式只是表现层（rem 缩放），不改变结构与焦点 -->
+    <section class="pref-bar" aria-labelledby="pref-title">
+      <h2 id="pref-title" class="pref-bar__title">显示偏好（跨设备同步）</h2>
+      <div class="pref-bar__controls">
+        <label>字号
+          <select id="pref-font" aria-describedby="pref-status">
+            <option value="1">标准</option>
+            <option value="1.25">较大</option>
+            <option value="1.5">大字</option>
+            <option value="1.75">特大</option>
+            <option value="2">最大</option>
+          </select>
+        </label>
+        <label><input type="checkbox" id="pref-contrast"> 高对比度</label>
+        <label><input type="checkbox" id="pref-motion"> 减少动态效果</label>
+        <button type="button" id="pref-sync" class="btn">从其他设备同步</button>
+        <span id="pref-status" class="pref-status" role="status" aria-live="polite"></span>
+      </div>
+    </section>
+
+    <!-- 共享筛选条件（查询状态唯一来源之一） -->
+    <section class="filters" aria-labelledby="filters-title">
+      <h2 id="filters-title">筛选慢行点位</h2>
+      <form id="filters-form" class="filters__form" role="search">
+        <label class="filters__keyword">搜索关键词
+          <input type="search" id="f-keyword" placeholder="如：无台阶、座椅、荷花" autocomplete="off">
+        </label>
+        <label>类型
+          <select id="f-kind">
+            <option value="">全部类型</option>
+            <option value="view">观景点</option>
+            <option value="path">步道</option>
+            <option value="park">公园</option>
+            <option value="landmark">地标</option>
+            <option value="rest">休息点</option>
+            <option value="transport">交通</option>
+          </select>
+        </label>
+        <label><input type="checkbox" id="f-stepfree"> 仅无台阶</label>
+        <label><input type="checkbox" id="f-wheelchair"> 轮椅可通行</label>
+        <label><input type="checkbox" id="f-quiet"> 安静</label>
+        <label><input type="checkbox" id="f-seating"> 有座椅</label>
+        <label><input type="checkbox" id="f-toilet"> 有无障碍卫生间</label>
+        <button type="button" id="clear-filters" class="btn btn--ghost">清空筛选</button>
+      </form>
+    </section>
+
+    <section class="geo" aria-labelledby="geo-title">
+      <h2 id="geo-title" class="sr-only">定位</h2>
+      <button type="button" id="geo-btn" class="btn">使用我的位置找最近点位</button>
+      <div id="geo-status" class="geo-status" role="status" aria-live="polite" hidden></div>
+      <div id="nearby-list"></div>
+    </section>
+
+    <section class="dual" aria-label="地图与结构化路线列表">
+      <!-- 地图 -->
+      <div class="map-panel">
+        <h2 class="panel-title">点位地图 <span id="map-legend" class="map-legend" aria-live="polite"></span></h2>
+        <div class="map-scroll">
+          <svg id="slow-map" class="slow-map" viewBox="0 0 800 440"
+               role="application" tabindex="0"
+               aria-label="慢行点位地图，加载中"
+               aria-keyshortcuts="ArrowRight ArrowLeft Enter">
+            <rect class="map-water" x="0" y="0" width="800" height="440"></rect>
+            <!-- 示意湖形 -->
+            <path class="map-lake" d="M150,70 Q330,20 520,80 Q700,120 690,250 Q680,390 470,400 Q260,410 150,340 Q40,260 60,160 Q80,90 150,70 Z"></path>
+            <g id="map-routes"></g>
+            <g id="map-markers"></g>
+          </svg>
+        </div>
+        <p class="map-kbd-help">键盘：Tab 聚焦地图后，用 ← → ↑ ↓ / Home / End 在标记间移动，Enter 打开详情。</p>
+      </div>
+
+      <!-- 结构化路线列表（虚拟滚动） -->
+      <div class="list-panel">
+        <h2 class="panel-title" id="list-heading">结构化路线列表</h2>
+        <p id="list-status" class="list-status" aria-live="polite">正在加载点位…</p>
+        <div id="route-list-viewport" class="route-list-viewport"
+             role="listbox" aria-labelledby="list-heading" aria-label="慢行点位列表，方向键移动，回车查看详情"
+             aria-rowcount="0" tabindex="0">
+          <div id="route-list-inner" class="route-list-inner"></div>
+        </div>
+        <div id="list-empty" class="list-empty" hidden>
+          <p>没有符合当前筛选条件的点位。</p>
+          <p class="muted">焦点已移到"清空筛选"按钮，页面位置保持不变。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 结构化路线（有序站点，每站带同版文字） -->
+    <section class="routes" aria-labelledby="routes-title">
+      <h2 id="routes-title">推荐慢行路线（站点顺序与文字说明同版）</h2>
+      <div id="routes-cards" class="routes-cards"></div>
+    </section>
+
+    <!-- 懒加载图片 -->
+    <section class="gallery" aria-labelledby="gallery-title">
+      <h2 id="gallery-title">点位图片（懒加载，附文字说明）</h2>
+      <p class="muted">图片滚动到视口才加载；加载失败时提供文字说明与重试；图片说明随内容版本更新。</p>
+      <div id="lazy-gallery" class="lazy-gallery"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>慢行 SlowMoves · 无障碍交互演示 · 所有点位文字与替代说明按内容版本同步。</p>
+  </footer>
+
+  <!-- 一级弹层：详情 -->
+  <div class="dialog-backdrop" data-backdrop hidden>
+    <div id="detail-dialog" class="dialog" role="dialog" aria-modal="true" aria-labelledby="detail-title" aria-hidden="true">
+      <div class="dialog__header">
+        <h3 id="detail-title" class="dialog__title">点位详情</h3>
+        <button type="button" class="dialog__close" data-close aria-label="关闭详情弹层">×</button>
+      </div>
+      <div class="dialog__body"></div>
+    </div>
+  </div>
+
+  <!-- 二级弹层：对比 -->
+  <div class="dialog-backdrop" data-backdrop hidden>
+    <div id="compare-dialog" class="dialog dialog--sub" role="dialog" aria-modal="true" aria-labelledby="compare-title" aria-hidden="true">
+      <div class="dialog__header">
+        <h3 id="compare-title" class="dialog__title">对比两个点位</h3>
+        <button type="button" class="dialog__close" data-close aria-label="关闭对比弹层，返回详情">×</button>
+      </div>
+      <div class="dialog__body"></div>
+    </div>
+  </div>
+
+  <!-- 二级弹层：投稿 -->
+  <div class="dialog-backdrop" data-backdrop hidden>
+    <div id="contribute-dialog" class="dialog dialog--sub" role="dialog" aria-modal="true" aria-labelledby="contribute-title" aria-hidden="true">
+      <div class="dialog__header">
+        <h3 id="contribute-title" class="dialog__title">更新点位文字与图片说明</h3>
+        <button type="button" class="dialog__close" data-close aria-label="关闭投稿弹层，返回详情">×</button>
+      </div>
+      <div class="dialog__body"></div>
+    </div>
+  </div>
+
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

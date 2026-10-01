@@ -1,0 +1,16 @@
+{
+  "name": "slow-moves-a11y",
+  "version": "1.0.0",
+  "description": "慢行 SlowMoves — 无障碍慢行路线产品（地图/列表双状态同步、焦点管理、偏好跨设备同步、后端替代说明校验）",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js",
+    "test": "node --test tests/"
+  },
+  "license": "MIT"
+}
